@@ -1,0 +1,8 @@
+streamlit==1.36.0
+opencv-python-headless==4.10.0.84
+numpy==1.26.4
+pandas==2.2.2
+scikit-learn==1.5.2
+Pillow==10.4.0
+joblib==1.4.2
+reportlab==4.2.2

@@ -1,0 +1,1 @@
+"""Goat AI analytics package."""
