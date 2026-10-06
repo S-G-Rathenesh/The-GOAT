@@ -33,6 +33,26 @@ The project uses the provided Goat_Dataset folder:
 - Click Analyze goat
 - Review the estimated weight, expected weight range, anomaly score, and fair-trade indication
 
+## Deploy on Streamlit Community Cloud
+
+This project is a Streamlit application, so it should be deployed with a Streamlit
+runtime rather than Vercel's Python serverless runtime. Vercel expects `app.py` to
+export a WSGI/ASGI variable named `app`, `application`, or `handler`; this
+application is a Streamlit script and intentionally does not export one.
+
+1. Push the project to GitHub with `app.py`, `src/`, `models/`, `Goat_Dataset/`,
+   and `requirements.txt` in the same project directory.
+2. Open [share.streamlit.io](https://share.streamlit.io/) and choose **Deploy an
+   app**.
+3. Select the repository and branch.
+4. Set **Main file path** to `app.py`. If the repository contains a parent
+   folder, select the folder that contains `app.py` as the app root.
+5. Deploy. Streamlit Community Cloud installs the packages from
+   `requirements.txt` automatically.
+
+Do not add a Vercel Python function wrapper around `app.py`; it would make the
+build pass but would not provide a working Streamlit session.
+
 ## Example output
 The app provides:
 - Health classification: Healthy Goat / Unhealthy Goat
