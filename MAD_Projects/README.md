@@ -53,6 +53,18 @@ application is a Streamlit script and intentionally does not export one.
 Do not add a Vercel Python function wrapper around `app.py`; it would make the
 build pass but would not provide a working Streamlit session.
 
+## Deploy on Render
+
+For a Render **Web Service**, use `MAD_Projects` as the root directory and use:
+
+```text
+Build command: pip install -r requirements.txt
+Start command: streamlit run app.py --server.address 0.0.0.0 --server.port $PORT
+```
+
+The `runtime.txt` file pins Render to Python 3.12 because the pinned NumPy and
+pandas versions require a Python version with compatible prebuilt wheels.
+
 ## Example output
 The app provides:
 - Health classification: Healthy Goat / Unhealthy Goat
