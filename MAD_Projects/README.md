@@ -1,4 +1,4 @@
-# Goat Fair-Weight Analyzer
+# THE GOAT
 
 A mobile-friendly AI application for goat weight estimation and temporary weight anomaly detection using smartphone images.
 

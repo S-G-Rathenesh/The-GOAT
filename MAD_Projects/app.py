@@ -1,3 +1,4 @@
+import base64
 import hashlib
 import io
 import sys
@@ -20,7 +21,14 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from goat_analysis import DATA_DIR, DEFAULT_BREEDS, GoatAnalyzer
 
-st.set_page_config(page_title="Goat Fair-Weight Analyzer", page_icon="🐐", layout="wide")
+LOGO_PATH = ROOT / "logo.png"
+if not LOGO_PATH.exists() and (ROOT.parent / "logo.png").exists():
+    LOGO_PATH = ROOT.parent / "logo.png"
+
+st.set_page_config(page_title="THE GOAT", page_icon=str(LOGO_PATH) if LOGO_PATH.exists() else "🐐", layout="wide")
+
+if hasattr(st, "logo") and LOGO_PATH.exists():
+    st.logo(str(LOGO_PATH))
 
 STEP_LABELS = [
     "Goat Profile",
@@ -219,12 +227,18 @@ def build_report_pdf(report_df):
         ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
     ]))
     document.build([
-        Paragraph("Goat Fair-Weight Analyzer - History & Reports", title_style),
+        Paragraph("THE GOAT - History & Reports", title_style),
         Spacer(1, 6 * mm),
         table,
     ])
     return buffer.getvalue()
 
+
+
+def get_base64_logo() -> str:
+    if LOGO_PATH.exists():
+        return base64.b64encode(LOGO_PATH.read_bytes()).decode()
+    return ""
 
 
 def render_header():
@@ -260,8 +274,8 @@ def render_header():
                 border-radius: 26px; padding: 2rem 2.2rem; box-shadow: 0 18px 40px rgba(27, 73, 45, 0.18);
                 margin-bottom: 1.2rem; border: 1px solid rgba(255,255,255,0.12);
             }
-            .hero-panel h1 { color: #ffffff !important; font-size: 2.5rem; margin: 0.2rem 0 0.5rem 0; font-weight: 800; }
-            .hero-panel p { color: rgba(255,255,255,0.9) !important; font-size: 1rem; margin: 0; }
+            .hero-panel h1 { color: #ffffff !important; font-size: 2.6rem; margin: 0.2rem 0 0.4rem 0; font-weight: 800; letter-spacing: 0.04em; }
+            .hero-panel p { color: rgba(255,255,255,0.92) !important; font-size: 1rem; margin: 0; }
             .badge { display: inline-block; padding: 0.4rem 0.8rem; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.2); border-radius: 999px; font-size: 0.76rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #f5fff5 !important; }
             .panel { background: rgba(255,255,255,0.7); border: 1px solid rgba(21, 46, 31, 0.08); border-radius: 22px; padding: 1.25rem; box-shadow: 0 12px 30px rgba(31, 65, 42, 0.08); backdrop-filter: blur(8px); }
             .metric-card { background: linear-gradient(180deg, #ffffff 0%, #f9fbfb 100%); border: 1px solid rgba(20, 48, 34, 0.08); border-radius: 20px; padding: 1rem 1.1rem; text-align: left; box-shadow: 0 8px 24px rgba(15, 26, 18, 0.05); height: 100%; }
@@ -320,22 +334,33 @@ def render_header():
             }
             [data-testid="stButton"] > button { width: 100%; border-radius: 14px; background: linear-gradient(135deg, #1d4d2a 0%, #2d8e57 100%); color: white; border: none; font-weight: 700; padding: 0.8rem 1rem; box-shadow: 0 12px 24px rgba(31, 116, 75, 0.22); }
             [data-testid="stButton"] > button:hover { transform: translateY(-1px); box-shadow: 0 14px 28px rgba(31, 116, 75, 0.28); }
-            .chip-row { display: flex; gap: 0.7rem; flex-wrap: wrap; margin: 1rem 0 1.2rem 0; }
+            .chip-row { display: flex; gap: 0.7rem; flex-wrap: wrap; margin: 1rem 0 0 0; }
             .chip { display: inline-block; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.18); color: #ffffff !important; border-radius: 999px; padding: 0.45rem 0.9rem; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.02em; }
         </style>
         """,
         unsafe_allow_html=True,
     )
+    logo_b64 = get_base64_logo()
+    logo_img_html = (
+        f'<img src="data:image/png;base64,{logo_b64}" style="width: 110px; height: 110px; border-radius: 50%; box-shadow: 0 10px 25px rgba(0,0,0,0.32); border: 3px solid rgba(255,255,255,0.65); background: #ffffff;" alt="THE GOAT Logo" />'
+        if logo_b64
+        else ""
+    )
     st.markdown(
-        """
-        <div class="hero-panel">
-            <div class="badge">AI Trading Assistant</div>
-            <h1>Goat Fair-Weight Analyzer</h1>
-            <p>Multi-step goat assessment workflow from profile registration to fair-trade decision support.</p>
-            <div class="chip-row">
-                <span class="chip">Breed-aware</span>
-                <span class="chip">Mobile capture</span>
-                <span class="chip">Fair-trade alert</span>
+        f"""
+        <div class="hero-panel" style="display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 250px;">
+                <div class="badge">AI Trading & Health System</div>
+                <h1>THE GOAT</h1>
+                <p>AI-Powered Fair-Weight Estimation & Temporary Anomaly Detection for Livestock Trading.</p>
+                <div class="chip-row">
+                    <span class="chip">Breed-aware</span>
+                    <span class="chip">Mobile capture</span>
+                    <span class="chip">Fair-trade alert</span>
+                </div>
+            </div>
+            <div style="flex-shrink: 0; text-align: center;">
+                {logo_img_html}
             </div>
         </div>
         """,
@@ -345,7 +370,12 @@ def render_header():
 
 def render_navigation():
     with st.sidebar:
-        st.title("Workflow")
+        if LOGO_PATH.exists():
+            st.image(str(LOGO_PATH), width=105)
+        st.markdown("<h2 style='margin: 0.2rem 0 0.1rem 0; font-size: 1.45rem; color: #ffffff !important; font-weight: 800;'>THE GOAT</h2>", unsafe_allow_html=True)
+        st.caption("AI Fair-Weight Analyzer")
+        st.markdown("---")
+        st.markdown("##### Workflow")
         for idx, step in enumerate(STEP_LABELS):
             if idx == st.session_state.current_step:
                 st.button(step, key=f"nav_{idx}", use_container_width=True, type="primary")
