@@ -1,0 +1,6 @@
+.venv/
+MAD_Projects/.venv/
+__pycache__/
+*.pyc
+temp_uploads/
+MAD_Projects/temp_uploads/
