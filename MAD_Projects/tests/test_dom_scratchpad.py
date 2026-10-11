@@ -255,6 +255,52 @@ class DomScratchpadWorkflowTest(unittest.TestCase):
         self.assertFalse(at2.exception, f"Step 7 crashed without records: {at2.exception}")
         self.assertTrue(any("No report generated yet" in inf.value for inf in at2.info))
 
+    def test_return_to_home_and_weight_authenticity_dom(self):
+        dataset_dir = ROOT / "Goat_Dataset" / "healthy_goat"
+        sample_img_path = next(p for p in sorted(dataset_dir.iterdir()) if p.suffix.lower() in {".jpg", ".jpeg", ".png"})
+
+        # Load app at Step 6 with valid image and observed weight
+        at = AppTest.from_file(self.app_path)
+        at.session_state.current_step = 6
+        at.session_state.image_path = str(sample_img_path)
+        at.session_state.observed_weight = 32.0
+        at.session_state.goat_id = "G-101"
+        at.session_state.owner_name = "Farmer Ramesh"
+        at.run(timeout=15)
+        self.assertFalse(at.exception, f"Step 6 crashed: {at.exception}")
+
+        # 1. Verify Weight Authenticity (Real vs Fake Weight) in DOM
+        markdown_texts = " ".join([m.value for m in at.markdown])
+        self.assertTrue(
+            "Weight Authenticity" in markdown_texts or "Real vs Fake Weight" in markdown_texts,
+            "Weight authenticity verdict must be rendered in DOM on Step 6"
+        )
+
+        # 2. Verify Return to Home button exists on Step 6
+        home_btns = [b for b in at.button if "Return to Home" in b.label]
+        self.assertGreaterEqual(len(home_btns), 1, "Return to Home button must exist on Step 6")
+
+        # 3. Test clicking Return to Home from Step 6 navigates back to Step 0
+        home_btn = home_btns[0]
+        home_btn.click().run(timeout=10)
+        self.assertEqual(at.session_state.current_step, 0, "Clicking Return to Home must set current_step to 0")
+
+        # 4. Advance to Step 7 and test Return to Home and Start New Assessment
+        at.session_state.current_step = 7
+        at.run(timeout=10)
+        self.assertEqual(at.session_state.current_step, 7)
+
+        step7_home_btns = [b for b in at.button if "Return to Home" in b.label]
+        self.assertGreaterEqual(len(step7_home_btns), 1, "Return to Home button must exist on Step 7")
+
+        new_assess_btns = [b for b in at.button if "Assess Another Goat" in b.label or "Start New Assessment" in b.label]
+        self.assertGreaterEqual(len(new_assess_btns), 1, "New Assessment button must exist on Step 7")
+
+        # 5. Click Start New Assessment and verify ID increments and step resets to 0
+        new_assess_btns[0].click().run(timeout=10)
+        self.assertEqual(at.session_state.current_step, 0, "New assessment must return to Step 0")
+        self.assertEqual(at.session_state.goat_id, "G-102", "Goat ID should auto-increment to G-102")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -4,3 +4,5 @@ __pycache__/
 *.pyc
 temp_uploads/
 MAD_Projects/temp_uploads/
+.streamlit/credentials.toml
+MAD_Projects/.streamlit/credentials.toml
